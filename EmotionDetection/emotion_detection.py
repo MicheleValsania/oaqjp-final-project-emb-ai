@@ -2,6 +2,17 @@ import requests
 import json
 
 def emotion_detector(text_to_analyze):
+    
+    if not text_to_analyze or text_to_analyze.strip() == "":
+        return {
+            'anger': None,
+            'disgust': None,
+            'fear': None,
+            'joy': None,
+            'sadness': None,
+            'dominant_emotion': None
+        }
+
     url = 'https://sn-watson-emotion.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict'
     
     headers = {
@@ -15,15 +26,22 @@ def emotion_detector(text_to_analyze):
     }
     
     response = requests.post(url, json=input_json, headers=headers)
-    response_dict = response.json()
-
-    # Estrai le emozioni
-    emotions = response_dict['emotionPredictions'][0]['emotion']
     
-    # Trova l'emozione dominante
+    
+    if response.status_code == 400:
+        return {
+            'anger': None,
+            'disgust': None,
+            'fear': None,
+            'joy': None,
+            'sadness': None,
+            'dominant_emotion': None
+        }
+
+    response_dict = response.json()
+    emotions = response_dict['emotionPredictions'][0]['emotion']
     dominant_emotion = max(emotions, key=emotions.get)
     
-    # Crea l'output formattato
     return {
         'anger': emotions['anger'],
         'disgust': emotions['disgust'],
